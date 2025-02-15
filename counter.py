@@ -22,6 +22,8 @@ Faults:
     - None known
 """
 
+import RPi.GPIO as GPIO # GPIO (pins) module
+
 class Counter:
     """
     Counter class that keeps track of the number of ballots that enter the drop box
@@ -31,16 +33,21 @@ class Counter:
         Initializes counter to 0 and saves pins for components (button, light curtain, e-ink display)
         
         Parameters:
-            button_pin: the pin the button is connected to 
-            light_curtain_pin: the pin the light curtain is connected to
-            e_ink_display_pin: the pin the e_ink_display is connected to
+            button_pin: the GPIO pin the button is connected to 
+            light_curtain_pin: the GPIO pin the light curtain is connected to
+            e_ink_display_pin: the GPIO pin the e-ink display is connected to
         """
-        ballot_count = 0 # initialize ballot count to 0
+        # initialize ballot count to 0
+        ballot_count = 0 
 
-        # pins
-        button_pin = button_pin
-        light_curtain_pin = light_curtain_pin
-        e_ink_display_pin = e_ink_display_pin
+        # GPIO settings
+        GPIO.setmode(GPIO.BCM) # use Broadcom GPIO numbering
+        GPIO.setup(self.button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP) # enable pull-up resistor
+
+        # Save GPIO pins for components
+        self.button_pin = button_pin
+        self.light_curtain_pin = light_curtain_pin
+        self.e_ink_display_pin = e_ink_display_pin
 
     def run(self):
         """Continuously checks if the button has been pressed and if a ballot has entered the drop box"""
@@ -56,6 +63,7 @@ class Counter:
         """Resets counter if the button is pressed"""
         if self._isButtonPressed():
             self._resetCounter()
+            self._updateDisplay()
 
     def _isButtonPressed(self):
         """
@@ -64,7 +72,7 @@ class Counter:
         Returns:  
             bool: if the button is pressed (True) or not (False)
         """
-        return self.button_pin.read_digital() == 1
+        return GPIO.input(self.button_pin) == GPIO.LOW
 
     def _incCounter(self, amount:int=1):
         """
