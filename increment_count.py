@@ -1,3 +1,27 @@
+"""
+Program Name: Increment Count
+Description: Counter class that keeps track of how many ballots have entered the drop box.
+    Count can be reset by pressing the button inside the box.
+
+Programmer(s): Ashley Aldave, Manvir Kaur
+Creation Date: 02/15/2025
+Revisions: 
+    - 02/15/2025 Initial Version (Ashley and Manvir)
+    - 02/16/2025 Adding Prologue Comments
+
+Preconditions: 
+    - Components (button, light curtain, e-ink display) must be connected to and detected by the Raspberry Pi
+Postconditions: 
+    - None
+Side Effects: 
+    - The ballot count will be updated when a ballot enters the drop box
+    - The E-ink display will update to reflect changes in the ballot count
+Invariants: 
+    - The ballot count will never be negative
+Faults:
+    - None known
+"""
+
 import time
 from waveshare_epd import epd2in1
 from PIL import Image, ImageDraw, ImageFont
