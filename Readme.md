@@ -61,10 +61,10 @@ The E-ink is a 2.13 inch e-Paper is an Active Matrix Electrophoretic Display (AM
     
     - Wipe off water drops as soon as possible. Long time contact with PS causes deformations and color fading.
       
-    【Working conditions for 240 hours】Temperature range: 0~50°C (Seven-color screen: 15~35°C); Humidity range: 35%~65%RH.
+    【Working conditions for 240 hours】Temperature range: 0-50°C (Seven-color screen: 15-35°C); Humidity range: 35%-65%RH.
     【Storage conditions】Temperature range: below 30°C; Humidity range: below 55%RH; Maximum storage time: 6 months.
-    【Transportation conditions】Temperature range: -25~70°C; Maximum transportation time: 10 days.
-    【After unpacking】Temperature range: 20°C±5°C; Humidity range: 50±5%RH; Maximum storage time: Assemble within 72 hours.
+    【Transportation conditions】Temperature range: -25-70°C; Maximum transportation time: 10 days.
+    【After unpacking】Temperature range: 20°C±5°C; Humidity range: 50±5%RH; Maximum storage time: Assemble within 72 hours
     
     - High temperature, high humidity, sunlight or fluorescent light may degrade the EPD panel’s performance.
     
@@ -84,7 +84,8 @@ The E-ink is a 2.13 inch e-Paper is an Active Matrix Electrophoretic Display (AM
 ##### Hardware Connection with E-ink and Raspberry Pi:
 When connecting the Raspberry Pi, you can directly insert the board into the 40PIN pin header of the Raspberry Pi, and pay attention to the correct pins.
 If you choose to connect with an 8PIN cable, please refer to the pin correspondence table below:
-![Screenshot 2025-02-15 at 5.30.26 PM](https://hackmd.io/_uploads/HJNCQs0KJe.png)
+<img width="716" alt="Screenshot 2025-02-16 at 9 35 26 AM" src="https://github.com/user-attachments/assets/d1315eb7-654d-4b21-bcb7-81ece7e6b660" />
+
 
 
 When designing the driver board, the rated input voltage of the e-Paper screen is 2.3~3.6V. If it is a 5V system, level conversion is required. In addition, the voltage should not be lower than 2.5V, so as not to affect the display effect of the e-Paper screen.
@@ -104,11 +105,13 @@ Reboot Raspberry Pi:
     sudo reboot
     
 Check /boot/config.txt, and you can see 'dtparam=spi=on' was written in as pictured below:
-![Screenshot 2025-02-15 at 5.42.04 PM](https://hackmd.io/_uploads/SJT28oCtJx.png)
+<img width="718" alt="Screenshot 2025-02-16 at 9 36 07 AM" src="https://github.com/user-attachments/assets/aa5a27c2-edaf-40b9-89ec-b7e59326200d" />
+
 
 
 To make sure SPI is not occupied, it is recommended to close other drivers' coverage. You can use ls /dev/spi* to check whether SPI is occupied. If the terminal outputs /dev/spidev0.1 and /dev/spidev0.1, SPI is not occupied.
-![Screenshot 2025-02-15 at 5.42.31 PM](https://hackmd.io/_uploads/rJiiUo0Kyg.png)
+<img width="452" alt="Screenshot 2025-02-16 at 9 36 30 AM" src="https://github.com/user-attachments/assets/4a41e320-bf94-4ce4-8e20-580ca8e699f0" />
+
 
 ##### Python and E-ink:
 While using the E-ink, in order to work in Python the following requirements must be met.
@@ -160,12 +163,14 @@ GPIO
 ### Diagrams and Visual Aids:
 #### E-ink Display
 Normal Flow
-![Screenshot 2025-02-15 at 5.07.50 PM](https://hackmd.io/_uploads/Sk6jEs0Y1g.png)
+<img width="336" alt="Screenshot 2025-02-16 at 9 37 09 AM" src="https://github.com/user-attachments/assets/133cd33a-791a-4c92-a6de-0ff5f431c6ca" />
 
-![Screenshot 2025-02-15 at 5.30.26 PM](https://hackmd.io/_uploads/HJNCQs0KJe.png)
+<img width="713" alt="Screenshot 2025-02-16 at 9 37 41 AM" src="https://github.com/user-attachments/assets/2984cce8-3527-4f15-8295-6f3f4f7fabb9" />
+
 
 #### Raspberry Pi Pinout
-![image](https://hackmd.io/_uploads/r1sF9oRYJe.png)
+<img width="476" alt="Screenshot 2025-02-16 at 9 38 28 AM" src="https://github.com/user-attachments/assets/3317b3af-258d-481e-a88d-8e0fe428a529" />
+
 Source: pinout.xyz
 
 ---
