@@ -137,10 +137,11 @@ GPIO
 ### Add anything here you add to your section
 ### E-ink Display
 Normal Flow
-![Screenshot 2025-02-15 at 5.07.50 PM](https://hackmd.io/_uploads/Sk6jEs0Y1g.png)
+
 
 ![Screenshot 2025-02-15 at 5.30.26 PM](https://hackmd.io/_uploads/HJNCQs0KJe.png)
 
 ### Raspberry Pi Pinout
-![image](https://hackmd.io/_uploads/r1sF9oRYJe.png)
+![image](https://github.com/user-attachments/assets/56a5bc1b-0321-4a22-9ba3-78a4c3da06f1)
+
 Source: pinout.xyz
