@@ -1,8 +1,3 @@
----
-title: User Guide for the "Smart Drop-Box Frame"
-
----
-
 # User Guide for the "Smart Drop-Box Frame"
 
 ## System Overview:
