@@ -137,9 +137,9 @@ GPIO
 ### Add anything here you add to your section
 ### E-ink Display
 Normal Flow
+![image](https://github.com/user-attachments/assets/bff06cc4-f224-44ad-81fc-257aab567394)
 
 
-![Screenshot 2025-02-15 at 5.30.26 PM](https://hackmd.io/_uploads/HJNCQs0KJe.png)
 
 ### Raspberry Pi Pinout
 ![image](https://github.com/user-attachments/assets/56a5bc1b-0321-4a22-9ba3-78a4c3da06f1)
