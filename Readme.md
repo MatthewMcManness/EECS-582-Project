@@ -149,13 +149,12 @@ Steps:
 
 ### Glossary:
 
-GPIO
-: General-Purpose Input-Output, a set of pins that can send or receive electric signals.
+GPIO: General-Purpose Input-Output, a set of pins that can send or receive electric signals.
 
 ---
 
 ### Troubleshooting Guide:
-
+Nothing as of yet, but we will update as we go along
 
 
 ---
