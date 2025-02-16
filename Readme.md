@@ -38,7 +38,6 @@ To ensure the *Smart Drop-Box Frame* is able to detect when the button is presse
 The E-ink is a 2.13 inch e-Paper is an Active Matrix Electrophoretic Display (AMEPD), with interface and a reference system design. The 2.13” active area contains 250×122 pixels, and has 1-bit B/W full display capabilities. An integrated circuit contains gate buffer, source buffer, interface, timing control logic, oscillator, DC-DC. SRAM.LUT, VCOM and border are supplied with each panel.
 
 
-:::warning
 ##### WARNINGS AND PRECAUTIONS:
 - The display glass may break when it is dropped or bumped on a hard surface. 
     Handle with care. Should the display break, do not touch the electrophoretic material.
@@ -79,7 +78,7 @@ The E-ink is a 2.13 inch e-Paper is an Active Matrix Electrophoretic Display (AM
     Do not bend the cable along the vertical direction of the screen to avoid tearing the cable; 
     Avoid excessive bending line to avoid line fracture
     Do not bend the cable toward the front of the screen to prevent the cable from being disconnected from the panel.
-:::
+
     
 
 ##### Hardware Connection with E-ink and Raspberry Pi:
