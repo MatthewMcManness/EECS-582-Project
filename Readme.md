@@ -1,15 +1,21 @@
+---
+title: User Guide for the "Smart Drop-Box Frame"
+
+---
+
 # User Guide for the "Smart Drop-Box Frame"
 
-## System Overview:
+### System Overview:
+The "Smart Drop-Box Frame" is a system designed to work with a variety ballot drop box designs.  It consists of a collection of hardware attached to a frame that can be dropped into a pre-existing ballot drop box.  This means that if a county would like to upgrade their existing ballot drop boxes into smart drop boxes all they need to do is design the frame structure to fit inside their boxes, attach the hardware, and drop the frame inside to create a Smart Ballot Drop box.
 
-### Matthew
+---
 
-## Component Guide:
+### Component Guide:
 
-### Raspberry Pi -- Mariam 
+#### Raspberry Pi  
 The Raspberry Pi 500 is a fast, powerful computer integrated into a high-quality keyboard, delivering the ultimate compact PC experience. Equipped with the same quad-core 64-bit Arm processor and RP1 I/O controller as the Raspberry Pi 5, it also includes a built-in aluminum heatsink for enhanced thermal performance. This ensures smooth operation even under heavy workloads while supporting stunning dual 4K display output.
 
-#### Features
+##### Features:
 
 * 2.4GHz quad-core 64-bit Arm Cortex-A76 CPU
 * 8GB SDRAM
@@ -17,24 +23,29 @@ The Raspberry Pi 500 is a fast, powerful computer integrated into a high-quality
 * Sleek form factor
 * Access to common external Pi 5 ports including GPIO, 2 x USB 3.0, 1 x USB 2.0 and Gigabit Ethernet
 
-### Light Curtain -- Mariam
+---
+
+#### Light Curtain 
 A light curtain is a safety device used in industrial automation to detect objects. It consists of an array of infrared light beams emitted from a transmitter and received by a receiver. When a beam is interrupted, the system triggers a response, which indicates it detected an object.
 
 The light curtain sensor responds as fast as 0.01 seconds. And the detection distance between transmitter and receiver can be up to 5m.
 
-
-### Reset Button -- Magaly
+---
+#### Reset Button 
 The Pi Supply Digital Push Button Brick is a sensor which detects when you press the button.
 
 The big button module pin definitions are as follows: (1) Output, (2) VCC, and (3) GND. 
 
 To ensure the *Smart Drop-Box Frame* is able to detect when the button is pressed ensure the button output is connected to GPIO17 (Pin No. 11), VCC is connected to a 3.3V pin, and GND is connected to a GND  pin on the Raspberry Pi. For help locating the pins see the [Raspberry Pi Pinout guide](#Raspberry-Pi-Pinout).
 
-### E-ink -- Ashley and Manvir
+---
+#### E-ink display
 The E-ink is a 2.13 inch e-Paper is an Active Matrix Electrophoretic Display (AMEPD), with interface and a reference system design. The 2.13” active area contains 250×122 pixels, and has 1-bit B/W full display capabilities. An integrated circuit contains gate buffer, source buffer, interface, timing control logic, oscillator, DC-DC. SRAM.LUT, VCOM and border are supplied with each panel.
 
-#### WARNINGS AND PRECAUTIONS
-    - The display glass may break when it is dropped or bumped on a hard surface. 
+
+:::warning
+##### WARNINGS AND PRECAUTIONS:
+- The display glass may break when it is dropped or bumped on a hard surface. 
     Handle with care. Should the display break, do not touch the electrophoretic material.
     
     - The display module should not be exposed to harmful gases, such as acid and alkali gases, 
@@ -73,19 +84,20 @@ The E-ink is a 2.13 inch e-Paper is an Active Matrix Electrophoretic Display (AM
     Do not bend the cable along the vertical direction of the screen to avoid tearing the cable; 
     Avoid excessive bending line to avoid line fracture
     Do not bend the cable toward the front of the screen to prevent the cable from being disconnected from the panel.
+:::
+    
 
-#### Hardware Connection with E-ink and Raspberry Pi
+##### Hardware Connection with E-ink and Raspberry Pi:
 When connecting the Raspberry Pi, you can directly insert the board into the 40PIN pin header of the Raspberry Pi, and pay attention to the correct pins.
 If you choose to connect with an 8PIN cable, please refer to the pin correspondence table below:
 ![Screenshot 2025-02-15 at 5.30.26 PM](https://hackmd.io/_uploads/HJNCQs0KJe.png)
 
-</br>
 
 When designing the driver board, the rated input voltage of the e-Paper screen is 2.3~3.6V. If it is a 5V system, level conversion is required. In addition, the voltage should not be lower than 2.5V, so as not to affect the display effect of the e-Paper screen.
 The e-Paper screen uses the cable socket 0.5-XXpin rear-flip 2.0H (FPC connector).
 All screens have built-in temperature sensors, and you can use IIC pin external LM75 temperature sensor.
 
-#### Enabling SPI Interface
+##### Enabling SPI Interface:
 In Raspberry Pi terminal enter the following in the config interface:
 
     sudo raspi-config
@@ -104,7 +116,7 @@ Check /boot/config.txt, and you can see 'dtparam=spi=on' was written in as pictu
 To make sure SPI is not occupied, it is recommended to close other drivers' coverage. You can use ls /dev/spi* to check whether SPI is occupied. If the terminal outputs /dev/spidev0.1 and /dev/spidev0.1, SPI is not occupied.
 ![Screenshot 2025-02-15 at 5.42.31 PM](https://hackmd.io/_uploads/rJiiUo0Kyg.png)
 
-#### Python and E-ink
+##### Python and E-ink:
 While using the E-ink, in order to work in Python the following requirements must be met.
 Install the function library:
     
@@ -119,29 +131,47 @@ Install gpiozero library (it is installed in the system by default, if not, you 
     sudo apt-get update
     sudo apt install python3-gpiozero
 
-</br>
+---
 
-## Ballot Collection and Verification Guide:
+### Ballot Collection and Verification Guide:
+When the collection team arrives at the drop box location the collectors should follow the steps outlined below:
+Steps:
+1. Open the drop box.
+2. (Both collectors independently) Verify the ballot count indicated on the drop box E-ink display.
+3. Log the ballot count.
+4.  (Both collectors independently)hand count the ballots
+5. Compare the hand counts with the counter log entered previously. If the counts match skip to step 7.
+6. Hit the reset button.
+7. Close the box.
+8. If the numbers did not match, send a message to the office with the disparity between counts so the office can examine the photo and scan data to determine what caused the error.
 
-### Matthew
 
-## Glossary:
-### Add what you need 
+
+---
+
+
+### Glossary:
+
 GPIO
 : General-Purpose Input-Output, a set of pins that can send or receive electric signals.
 
-## Troubleshooting Guide:
-### Not ready to do
+---
 
-## Diagrams and Visual Aids:
-### Add anything here you add to your section
-### E-ink Display
+### Troubleshooting Guide:
+
+
+
+---
+
+### Diagrams and Visual Aids:
+#### E-ink Display
 Normal Flow
-![image](https://github.com/user-attachments/assets/bff06cc4-f224-44ad-81fc-257aab567394)
+![Screenshot 2025-02-15 at 5.07.50 PM](https://hackmd.io/_uploads/Sk6jEs0Y1g.png)
 
+![Screenshot 2025-02-15 at 5.30.26 PM](https://hackmd.io/_uploads/HJNCQs0KJe.png)
 
-
-### Raspberry Pi Pinout
-![image](https://github.com/user-attachments/assets/56a5bc1b-0321-4a22-9ba3-78a4c3da06f1)
-
+#### Raspberry Pi Pinout
+![image](https://hackmd.io/_uploads/r1sF9oRYJe.png)
 Source: pinout.xyz
+
+---
