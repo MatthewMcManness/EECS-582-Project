@@ -3,10 +3,11 @@ Program Name: Counter Class
 Description: Counter class that keeps track of how many ballots have entered the drop box.
     Count can be reset by pressing the button inside the box.
 
-Programmer(s): Magaly Camacho
+Programmer(s): Magaly Camacho, Mariam Oraby
 Creation Date: 02/15/2025
 Revisions: 
     - 02/15/2025 Initial Version (Magaly Camacho)
+    - 02/16/2025 Implemented the _ballotCheck function (Mariam Oraby)
 
 Preconditions: 
     - Components (button, light curtain, e-ink display) must be connected to and detected by the Raspberry Pi
@@ -57,7 +58,9 @@ class Counter:
 
     def _ballotCheck(self):
         """Increases counter if a ballot enters the box"""
-        pass
+        if GPIO.input(self.light_curtain_pin) == GPIO.HIGH:  # If the light curtain detects an object
+            self._incCounter()
+            self._updateDisplay()
 
     def _buttonCheck(self):
         """Resets counter if the button is pressed"""
