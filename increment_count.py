@@ -1,7 +1,6 @@
 """
 Program Name: Increment Count
-Description: Counter class that keeps track of how many ballots have entered the drop box.
-    Count can be reset by pressing the button inside the box.
+Description: updates the e-ink display to reflect change in ballot count.
 
 Programmer(s): Ashley Aldave, Manvir Kaur
 Creation Date: 02/15/2025
