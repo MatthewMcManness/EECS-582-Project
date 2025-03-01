@@ -8,6 +8,7 @@ Creation Date: 02/15/2025
 Revisions: 
     - 02/15/2025 Initial Version (Magaly Camacho)
     - 02/16/2025 Implemented the _ballotCheck function (Mariam Oraby)
+    - 03/01/2025 Changed GPIO library to gpiozero and refactored code to match, integrated E-Ink class
 
 Preconditions: 
     - Components (button, light curtain, e-ink display) must be connected to and detected by the Raspberry Pi
@@ -20,76 +21,51 @@ Side Effects:
 Invariants: 
     - The ballot count will never be negative
 Faults:
-    - None known
+    - Light curtain code still needs to be tested on hardware
 """
 
-import RPi.GPIO as GPIO # GPIO (pins) module
+import time, atexit
+from gpiozero import Button
+from eink import EInkDisplay 
 
 class Counter:
-    """
-    Counter class that keeps track of the number of ballots that enter the drop box
-    """
-    def __init__(self, button_pin, light_curtain_pin, e_ink_display_pin):
+    """Counter class that keeps track of the number of envelopes that enter the drop box"""
+    def __init__(self, debug:bool=False):
         """
         Initializes counter to 0 and saves pins for components (button, light curtain, e-ink display)
         
-        Parameters:
-            button_pin: the GPIO pin the button is connected to 
-            light_curtain_pin: the GPIO pin the light curtain is connected to
-            e_ink_display_pin: the GPIO pin the e-ink display is connected to
+        Parameters: 
+            debug (bool): print debug messages if True, don't print otherwise
         """
-        # initialize ballot count to 0
-        ballot_count = 0 
+        self.count = 0 # initialize envelope count to 0
+        if debug: print(f"Count (Initial): {self.count}") # print debug statement if applicable
+        self.debug = debug # save debug setting
 
-        # GPIO settings
-        GPIO.setmode(GPIO.BCM) # use Broadcom GPIO numbering
-        GPIO.setup(self.button_pin, GPIO.IN, pull_up_down=GPIO.PUD_UP) # enable pull-up resistor
+        # button setup 
+        self.button = Button(27) # receive button output from pin GPIO 27
+        self.button.when_pressed = self._resetAndUpdate # reset count and update 
 
-        # Save GPIO pins for components
-        self.button_pin = button_pin
-        self.light_curtain_pin = light_curtain_pin
-        self.e_ink_display_pin = e_ink_display_pin
+        # light curtain setup
+        self.light_curtain = Button(22) # connected to GPIO22
+        self.light_curtain.when_pressed = self._incAndUpdate
 
-    def run(self):
-        """Continuously checks if the button has been pressed and if a ballot has entered the drop box"""
-        while True:
-            self._buttonCheck()
-            self._ballotCheck()
+        # start E-Ink Display
+        self.eink = EInkDisplay()
 
-    def _ballotCheck(self):
-        """Increases counter if a ballot enters the box"""
-        if GPIO.input(self.light_curtain_pin) == GPIO.HIGH:  # If the light curtain detects an object
-            self._incCounter()
-            self._updateDisplay()
+    def cleanup(self):
+        """Clear E-Ink Display and make it go to sleep, and release GPIO resources"""
+        self.eink.clear_sleep()
+        self.button.close()
+        self.light_curtain.close()
 
-    def _buttonCheck(self):
-        """Resets counter if the button is pressed"""
-        if self._isButtonPressed():
-            self._resetCounter()
-            self._updateDisplay()
+    def _incAndUpdate(self):
+        """Increase count and update E-Ink Display"""
+        self.count += 1
+        self.eink.update_display(self.count)
+        if self.debug: print(f"Count: {self.count}") # print debug statement if applicable
 
-    def _isButtonPressed(self):
-        """
-        Checks if the button is pressed
-        
-        Returns:  
-            bool: if the button is pressed (True) or not (False)
-        """
-        return GPIO.input(self.button_pin) == GPIO.LOW
-
-    def _incCounter(self, amount:int=1):
-        """
-        Increases the count by a specified amount (defaults to 1)
-        
-        Parameters:
-            amount (int): the amount to increase the ballot count by (defaults to 1)
-        """
-        self.ballot_count += amount
-
-    def _resetCounter(self):
-        """Resets ballot count to 0"""
-        self.ballot_count = 0
-
-    def _updateDisplay(self):
-        """Updates E-ink display to show the current ballot count"""
-        pass
+    def _resetAndUpdate(self):
+        """Reset count and update E-Ink Display"""
+        self.count = 0
+        self.eink.update_display(self.count)
+        if self.debug: print(f"Count (reset): {self.count}") # print debug statement if applicable
