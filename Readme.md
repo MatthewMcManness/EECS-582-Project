@@ -7,6 +7,29 @@ The "Smart Drop-Box Frame" is a system designed to work with a variety ballot dr
 
 ### Component Guide:
 
+#### Frame:
+
+The frame should be custom designed to fit the drop box you are enhancing. We are working with the Douglas County Clerk to modify their main (larger) drop boxes and as such we built a frame with the following specifications:
+- Made out of dimensional 2x2 pine lumber
+- pieces connected through half-lap joints and threaded inserts (with hex bolts)
+- hardware attached to the frame using:
+    -  threaded inserts (either directly to the frame or to plywood connected to the frame)
+    -  zip ties
+    or 
+    -  directly with clamps
+
+The following is a list of the cuts made to the dimensional lumber (not including the joints):
+**Components List**
+| Piece ID | # Needed | Dimensions (in inches) | Description |
+| -------- | -------- | -------- | -------|
+| A.1    | 2     | 39 x 2 x 2     | Back Vertical columns|
+| A.2    | 2     | 43 x 2 x 2     | Front Vertical columns |
+| B    | 4     | 18 3/4 x 2 x 2     | Front/Back beams |
+| C    | 4     | 15 x 2 x 2     | Side Beams|
+|Assorted plywood sheets| | | to attach technical hardware to| 
+
+If you are making your own (to work with a different drop box) you need to ensure that the frame will fit inside your box but also that all components will fit inside the box as well.
+
 #### Raspberry Pi  
 The Raspberry Pi 500 is a fast, powerful computer integrated into a high-quality keyboard, delivering the ultimate compact PC experience. Equipped with the same quad-core 64-bit Arm processor and RP1 I/O controller as the Raspberry Pi 5, it also includes a built-in aluminum heatsink for enhanced thermal performance. This ensures smooth operation even under heavy workloads while supporting stunning dual 4K display output.
 
