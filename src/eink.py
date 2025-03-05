@@ -8,7 +8,7 @@ Revisions:
     - 02/15/2025 Initial Version (Ashley and Manvir)
     - 02/16/2025 Adding Prologue Comments
     - 02/24/2025 Fixing code (Ashley and Manvir)
-    - 03/01/202t Renamed file, refactored code to better fit the rest of the codebase, comments (Magaly and Mariam)
+    - 03/01/2025 Renamed file, refactored code to better fit the rest of the codebase, comments (Magaly and Mariam)
 
 Preconditions: 
     - E-ink display must be working, as well as connected to and detected by the Raspberry Pi
@@ -30,7 +30,7 @@ class EInkDisplay:
     def __init__(self, count:int=0):
         """Start e-ink"""
         # Save font for text
-        font_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "Font.ttc") # get font path
+        font_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), "misc/Font.ttc") # get font path
         self.font = ImageFont.truetype(font_path, 24) # font size 24
 
         self.current_count = count # initialize current count

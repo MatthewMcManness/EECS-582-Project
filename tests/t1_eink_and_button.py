@@ -20,8 +20,8 @@ Faults:
     - None known
 """
 
-import time, atexit
-from counter import Counter
+import time
+from src import Counter
 
 if __name__ == "__main__":
     try:
@@ -32,11 +32,11 @@ if __name__ == "__main__":
             time.sleep(3) # wait 3 seconds
 
             # stop when ballot count reaches 5
-            if counter.count == 2:
+            if counter.count == 5:
                 print("Stopping")
                 break
 
-    # if error occurs, print it and stop e-ink
+    # if error occurs, print it
     except Exception as e:
         print(f"Error: {e}") 
 
