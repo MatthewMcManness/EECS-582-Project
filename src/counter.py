@@ -3,16 +3,17 @@ Program Name: Counter Class
 Description: Counter class that keeps track of how many ballots have entered the drop box.
     Count can be reset by pressing the button inside the box.
 
-Programmer(s): Magaly Camacho, Mariam Oraby
+Programmer(s): Magaly Camacho, Mariam Oraby, Ashley Aldave
 Creation Date: 02/15/2025
 Revisions: 
     - 02/15/2025 Initial Version (Magaly Camacho)
     - 02/16/2025 Implemented the _ballotCheck function (Mariam Oraby)
     - 03/01/2025 Changed GPIO library to gpiozero and refactored code to match, integrated E-Ink class
     - 03/04/2025 Added Lidar, implemented a run method, added placeholder methods to turn light on and to take a picture (Magaly Camacho)
+    - 03/15/2025 implemented turn light on function (Ashley Aldave)
 
 Preconditions: 
-    - Components (button, light curtain, e-ink display) must be connected to and detected by the Raspberry Pi
+    - Components (button, light curtain, e-ink display, led light strip) must be connected to and detected by the Raspberry Pi
 Postconditions: 
     - None
 Side Effects: 
@@ -23,10 +24,11 @@ Invariants:
     - The ballot count will never be negative
 Faults:
     - Light curtain code still needs to be tested on hardware
+    - LED lights code still needs to be tested on hardware
 """
 
 import time
-from gpiozero import Button
+from gpiozero import Button, LED
 from src.eink import EInkDisplay 
 from src.lidar import Lidar
 
@@ -48,6 +50,9 @@ class Counter:
         # button setup 
         self.button = Button(27) # receive button output from pin GPIO 27
         self.button.when_pressed = self._resetAndUpdate # reset count and update 
+
+        # led light set up
+        self.light = LED(18) # connected to GPIO 18
 
         # light curtain setup
         self.light_curtain = Button(22) # connected to GPIO22
@@ -102,8 +107,12 @@ class Counter:
         if self.debug: print(f"Count (reset): {self.count}") # print debug statement if applicable
 
     def _turn_light_on(self):
-        """"""
-        pass
+        """Turns led light strip on momentarily"""
+        if self.debug: print("Light ON") # debug statement, light on
+        self.light.on() # turn on led 
+        time.sleep(2) # sleep for 2 seconds 
+        self.light.off() # turn off led
+        if self.debug: print("Light OFF") # debug statement light off 
 
     def _take_picture(self):
         """"""
