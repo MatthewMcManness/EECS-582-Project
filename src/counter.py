@@ -12,7 +12,8 @@ Revisions:
     - 03/04/2025 Added Lidar, implemented a run method, added placeholder methods to turn light on and to take a picture (Magaly Camacho)
     - 03/15/2025 implemented turn light on function (Ashley Aldave)
     - 03/16/2025 implemented take picture function (Mariam Oraby)
-
+    - 03/16/2025 implemented turn light off function (Ashley Aldave)
+    
 Preconditions: 
     - Components (button, light curtain, e-ink display, led light strip) must be connected to and detected by the Raspberry Pi
 Postconditions: 
@@ -82,6 +83,7 @@ class Counter:
                     self._incAndUpdate() # increase count and update E-Ink Display
                     self._turn_light_on() # turn light on momentarily
                     self._take_picture() # take picture of envelope
+                    self._turn_light_off() # turn light on momentarily
 
         # catch keyboard interrupt
         except KeyboardInterrupt as e:
@@ -109,12 +111,14 @@ class Counter:
         if self.debug: print(f"Count (reset): {self.count}") # print debug statement if applicable
 
     def _turn_light_on(self):
-        """Turns led light strip on momentarily"""
-        if self.debug: print("Light ON") # debug statement, light on
-        self.light.on() # turn on led 
-        time.sleep(2) # sleep for 2 seconds 
-        self.light.off() # turn off led
-        if self.debug: print("Light OFF") # debug statement light off 
+        """Turns LED light strip on"""
+        if self.debug: print("Light ON")  # debug statement, light on
+        self.light.on()  # turn on LED
+
+    def _turn_light_off(self):
+        """Turns LED light strip off"""
+        if self.debug: print("Light OFF")  # debug statement, light off
+        self.light.off()  # turn off LED
 
     def _take_picture(self):
         """Takes a picture with the Raspberry Pi camera and saves it to a file"""
