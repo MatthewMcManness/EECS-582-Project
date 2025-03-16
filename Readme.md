@@ -153,31 +153,30 @@ Install gpiozero library (it is installed in the system by default, if not, you 
 
 ---
 ## Setting up the components
-This guide provides step-by-step instructions to set up a Raspberry Pi with a button, an e-ink display, and a light curtain sensor.
+This guide provides step-by-step instructions to set up a Raspberry Pi with a button, an e-ink display, and a lidar sensor.
 ### Wiring Connections
-#### Button Connection
-| Button Pin | Raspberry Pi Pin |
-| -------- | -------- | 
-| GND (G)  |Pin 39 (GND)   | 
-| VCC (V)   | Pin 4 (5V)   | 
-| Output (S)  | Pin 13 (GPIO 27)    | 
-
-#### E-Ink Display Connection
-| E-Ink Pin | Raspberry Pi Pin |
-| -------- | -------- | 
-| VCC  |Pin 2 (5V)   | 
-| GND   | Pin 6 (GND)   | 
-| DIN  | Pin 19 (GPIO 10, SPI0 MOSI)   | 
-| CLK | Pin 23 (GPIO 11, SCLK) |
-| CS | Pin 24 (GPIO 8, SPI0 CE0) |
-| DC | Pin 22 (GPIO 25) |
-| RST | Pin 11 |
-| BUSY | Pin 18 (GPIO 24) |
-
-#### Light Curtain Connection
-| Light Curtain Pin | Raspberry Pi Pin |
-| -------- | -------- | 
-| Signal | Pin 15 (GPIO 22) (subject to change)  |
+| Pin | Connection    | Color  | -   | Pin | Connection    | Color  |
+| --- | ------------- | ------ | --- | --- | ------------- | ------ |
+| 1   | E-Ink VCC     | Gray   |     | 2   |               |        |
+| 3   | Lidar I2C SDA | Blue   |     | 4   | Lidar VDC (+) | Red    |
+| 5   | Lidar I2C SCL | Green  |     | 6   | Lidar Ground  | Black  |
+| 7   |               |        |     | 8   |               |        |
+| 9   | E-Ink GND     | Red    |     | 10  |               |        |
+| 11  | E-Ink RST     | White  |     | 12  |               |        |
+| 13  | Button S      | White  |     | 14  |               |        |
+| 15  |               |        |     | 16  |               |        |
+| 17  | Button V      | Red    |     | 18  | E-Ink BUSY    | Purple |
+| 19  | E-Ink DIN     | Blue   |     | 20  |               |        |
+| 21  |               |        |     | 22  | E-Ink DC      | Green  |
+| 23  | E-Ink CLK     | Yellow |     | 24  | E-Ink CS      | Orange |
+| 25  | Button G      | Black  |     | 26  |               |        |
+| 27  |               |        |     | 28  |               |        |
+| 29  |               |        |     | 30  |               |        |
+| 31  |               |        |     | 32  |               |        |
+| 33  |               |        |     | 34  |               |        |
+| 35  |               |        |     | 36  |               |        |
+| 37  |               |        |     | 38  |               |        |
+| 39  |               |        |     | 40  |               |        |
 
 
 ### Ballot Collection and Verification Guide:
