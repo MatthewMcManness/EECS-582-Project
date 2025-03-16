@@ -11,6 +11,7 @@ Revisions:
     - 03/01/2025 Changed GPIO library to gpiozero and refactored code to match, integrated E-Ink class
     - 03/04/2025 Added Lidar, implemented a run method, added placeholder methods to turn light on and to take a picture (Magaly Camacho)
     - 03/15/2025 implemented turn light on function (Ashley Aldave)
+    - 03/16/2025 implemented take picture function (Mariam Oraby)
 
 Preconditions: 
     - Components (button, light curtain, e-ink display, led light strip) must be connected to and detected by the Raspberry Pi
@@ -31,6 +32,7 @@ import time
 from gpiozero import Button, LED
 from src.eink import EInkDisplay 
 from src.lidar import Lidar
+import picamera
 
 class Counter:
     """Counter class that keeps track of the number of envelopes that enter the drop box"""
@@ -115,5 +117,17 @@ class Counter:
         if self.debug: print("Light OFF") # debug statement light off 
 
     def _take_picture(self):
-        """"""
-        pass
+        """Takes a picture with the Raspberry Pi camera and saves it to a file"""
+        timestamp = time.strftime("%Y%m%d-%H%M%S")  # create a timestamp for the file name
+        file_name = f"/home/pi/envelope_images/envelope_{timestamp}.jpg"  # specify file path
+    
+        try:
+            # Initialize the camera
+            with picamera.PICamera() as camera:
+                camera.resolution = (1024, 768)  # set the resolution (you can adjust this)
+                time.sleep(0.25)  # give the camera a couple of seconds to adjust to the lighting
+                camera.capture(file_name)  # capture the image and save it to file
+                if self.debug:
+                    print(f"Picture taken and saved as {file_name}")  # debug statement
+        except Exception as e:
+            print(f"Error taking picture: {e}")  # catch errors, such as camera issues
