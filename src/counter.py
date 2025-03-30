@@ -13,9 +13,10 @@ Revisions:
     - 03/15/2025 implemented turn light on function (Ashley Aldave)
     - 03/16/2025 implemented take picture function (Mariam Oraby)
     - 03/16/2025 implemented turn light off function (Ashley Aldave)
+    - 03/30/2025 Removed light curtain and light pins and comments, as they're not used (Magaly Camacho)
     
 Preconditions: 
-    - Components (button, light curtain, e-ink display, led light strip) must be connected to and detected by the Raspberry Pi
+    - Components (button, e-ink display) must be connected to and detected by the Raspberry Pi
 Postconditions: 
     - None
 Side Effects: 
@@ -25,8 +26,7 @@ Side Effects:
 Invariants: 
     - The ballot count will never be negative
 Faults:
-    - Light curtain code still needs to be tested on hardware
-    - LED lights code still needs to be tested on hardware
+    - Camera code still needs to be tested
 """
 
 import time
@@ -41,7 +41,7 @@ class Counter:
 
     def __init__(self, debug:bool=False):
         """
-        Initializes counter to 0 and saves pins for components (button, light curtain, e-ink display)
+        Initializes counter to 0 and saves pins for components (button, e-ink display)
         
         Parameters: 
             debug (bool): print debug messages if True, don't print otherwise
@@ -54,13 +54,6 @@ class Counter:
         self.button = Button(27) # receive button output from pin GPIO 27
         self.button.when_pressed = self._resetAndUpdate # reset count and update 
 
-        # led light set up
-        self.light = LED(18) # connected to GPIO 18
-
-        # light curtain setup
-        self.light_curtain = Button(22) # connected to GPIO22
-        self.light_curtain.when_pressed = self._incAndUpdate
-
         # Get LiDAR and E-Ink Display
         self.lidar = Lidar(debug, self.MIN_DROP_DISTANCE)
         self.eink = EInkDisplay()
@@ -69,7 +62,6 @@ class Counter:
         """Clear E-Ink Display and make it go to sleep, and release other resources"""
         self.eink.clear_sleep()
         self.button.close()
-        self.light_curtain.close()
         self.lidar.cleanup()
 
     def run(self):
@@ -81,13 +73,15 @@ class Counter:
             while True:
                 if self._envelopeEntered():
                     self._incAndUpdate() # increase count and update E-Ink Display
-                    self._turn_light_on() # turn light on momentarily
                     self._take_picture() # take picture of envelope
-                    self._turn_light_off() # turn light on momentarily
 
         # catch keyboard interrupt
         except KeyboardInterrupt as e:
             print("\nCtrl + C: exiting...")
+
+        # catch other errors
+        except Exception as e:
+            print(f"\nError: {e}")
 
         # release resources
         finally:
@@ -109,16 +103,6 @@ class Counter:
         self.count = 0
         self.eink.update_display(self.count)
         if self.debug: print(f"Count (reset): {self.count}") # print debug statement if applicable
-
-    def _turn_light_on(self):
-        """Turns LED light strip on"""
-        if self.debug: print("Light ON")  # debug statement, light on
-        self.light.on()  # turn on LED
-
-    def _turn_light_off(self):
-        """Turns LED light strip off"""
-        if self.debug: print("Light OFF")  # debug statement, light off
-        self.light.off()  # turn off LED
 
     def _take_picture(self):
         """Takes a picture with the Raspberry Pi camera and saves it to a file"""
