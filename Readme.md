@@ -19,6 +19,7 @@ The frame should be custom designed to fit the drop box you are enhancing. We ar
     -  directly with clamps
 
 The following is a list of the cuts made to the dimensional lumber (not including the joints):
+
 **Components List**
 | Piece ID | # Needed | Dimensions (in inches) | Description |
 | -------- | -------- | -------- | -------|
