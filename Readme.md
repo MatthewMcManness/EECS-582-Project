@@ -44,10 +44,19 @@ The Raspberry Pi 500 is a fast, powerful computer integrated into a high-quality
 
 ---
 
-#### Light Curtain 
-A light curtain is a safety device used in industrial automation to detect objects. It consists of an array of infrared light beams emitted from a transmitter and received by a receiver. When a beam is interrupted, the system triggers a response, which indicates it detected an object.
+#### Lidar 
+The Garmin Lidar Lite v3 is a compact, high-performance optical distance measurement sensor solution. The lidar will be connected to the Raspberry Pi through its wiring harness:
 
-The light curtain sensor responds as fast as 0.01 seconds. And the detection distance between transmitter and receiver can be up to 5m.
+| Wire Color | Function |
+| ---------- | -------- |
+| Red | 5 Vdc (+) |
+| Green | I2C SCL |
+| Blue | I2C SDA |
+| Black | Ground (-) |
+
+For the specific pins, refer to the Wiring Connections section. Note that the harness also has an orange wire and a yellow wire, but these are not needed and should **not** be connected to the Raspberry Pi.
+
+For further information or to troubleshoot, see the [Operation Manual](https://static.garmin.com/pumac/LIDAR_Lite_v3_Operation_Manual_and_Technical_Specifications.pdf).
 
 ---
 #### Reset Button 
