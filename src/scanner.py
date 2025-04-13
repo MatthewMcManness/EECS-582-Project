@@ -5,7 +5,8 @@ Description: Scanner Class that identifies an IMb barcode in an image and gets a
 Programmer(s): Magaly Camacho
 Creation Date: 04/09/2025
 Revisions: 
-    - 02/15/2025 Initial Version (Magaly Camacho)
+    - 04/09/2025 Initial Version (Magaly Camacho)
+    - 04/12/2025 Changed bar classification to be based on adjacent bars (Magaly Camacho) 
     
 Preconditions: 
     - The provided image path must lead to an existing image which must be a png
@@ -20,11 +21,10 @@ Faults:
     - Doesn't account for an image not having a barcode or not being able to find one
     - Assumes there's an image at the given image path
     - Height threshold needs to be adjusted
-    - Classification process may need to be adjusted to start from the shortest bar, then classify each bar based on the two adjacent bars (to account for distortion)
     - Potentially too slow to be effective
 """
 
-import cv2
+import cv2, os
 from cv2.typing import MatLike
 from typing import Union
 
@@ -59,38 +59,96 @@ class IMBScanner:
     @classmethod
     def _getReprString(cls, bars:list) -> list[str]:
         """Returns a representative string for the barcode"""
-        # find shortest bar and calculate its center and the height threshold
+        # find shortest bar and get its index
         shortest_bar = min(bars, key=lambda b: b[3]) 
-        tracker_height = shortest_bar[3] 
-        tracker_center = shortest_bar[1] + tracker_height // 2 
-        height_thresh = tracker_height / 1.8 
+        shortest_bar_i = bars.index(shortest_bar)
+        classifications = [" " if i != shortest_bar_i else "T" for i in range(len(bars))]
 
-        #print(f"shortest: {shortest_bar}")
-        #print(f"tracker center: {tracker_center}")
-        #print(f"thres: {height_thresh}")
-
-        # classify bars based on tracker center and height threshold
-        classifications = [cls._classifyBar(y, h, tracker_center, height_thresh) for (x, y, w, h) in bars]
-        
+        # get representative string
+        cls._classifyBars(bars, classifications, shortest_bar_i)
         return ("").join(classifications)
-    
-    @staticmethod
-    def _classifyBar(y_top, height, tracker_center, height_thresh):
-        """Classifies a bar as either a tracker, ascending, descending, or full bar"""
-        # calculate offsets from the tracker's center
-        top_offset = tracker_center - y_top
-        bottom_offset = y_top + height - tracker_center
-        #print(f"bar: top({top_offset}), bottom({bottom_offset})")
 
-        # classify based on offsets and a height thresh
-        if top_offset > height_thresh and bottom_offset > height_thresh:
-            return "F"
-        elif top_offset > height_thresh:
-            return "A"
-        elif bottom_offset > height_thresh:
-            return "D"
-        else:
-            return "T"
+    @classmethod
+    def _classifyBars(cls, bars:list, classifications:list[str], shortest_bar_i:int):
+        """Classifies bar at index i as either a tracker, ascending, descending, or full bar. Recursively calls itself for the adjacent bars"""
+        for direction in [-1, 1]:
+            # reset to shortest bar as the previously classified bar
+            i = shortest_bar_i + direction
+            _, y_top_p, _, h_p = bars[shortest_bar_i]
+            y_bottom_p = y_top_p + h_p
+            type_p = "T"
+
+            while 0 <= i < len(bars):
+                _, y_top_i, _, h_i = bars[i]
+                y_bottom_i = y_top_i + h_i
+
+                top_offset = abs(y_top_i - y_top_p)
+                bottom_offset = abs(y_bottom_i - y_bottom_p)
+
+                type_i = cls._classifyBar(top_offset, bottom_offset, type_p, h_p)
+                classifications[i] = type_i
+                
+                # make current bar i the previously classified bar for the next i
+                y_top_p, y_bottom_p, h_p, type_p = y_top_i, y_bottom_i, h_i, type_i
+                i += direction
+    
+    @classmethod
+    def _classifyBar(cls, top_offset, bottom_offset, bar_p_type, bar_p_height):
+        """Classifies a bar (i) based on its height difference with bar p, which has been previously classified"""
+        # calculate height threshold based on height and type of bar_p (already classified) 
+        height_thresh = cls._calculateHeightThresh(bar_p_type, bar_p_height)
+
+        # if bars are close within threshold difference in height they are the same type
+        if top_offset <= height_thresh and bottom_offset <= height_thresh:
+            return bar_p_type
+        
+        # compare to tracker bar
+        if bar_p_type == "T":
+            if top_offset >= height_thresh and bottom_offset >= height_thresh:
+                return "F"
+            elif top_offset >= height_thresh:
+                return "A"
+            else:
+                return "D"
+
+        # compare to full bar 
+        elif bar_p_type == "F":
+            if top_offset >= height_thresh and bottom_offset >= height_thresh:
+                return "T"
+            elif top_offset >= height_thresh:
+                return "D"
+            else:
+                return "A"
+        
+        # compare to ascending bar
+        elif bar_p_type == "A":
+            if top_offset >= height_thresh and bottom_offset >= height_thresh:
+                return "D"
+            elif top_offset >= height_thresh:
+                return "T"
+            else:
+                return "F"
+            
+        # compare to descending bar
+        elif bar_p_type == "D":
+            if top_offset >= height_thresh and bottom_offset >= height_thresh:
+                return "A"
+            elif top_offset >= height_thresh:
+                return "F"
+            else:
+                return "T"
+
+    @staticmethod
+    def _calculateHeightThresh(bar_type, bar_height):
+        """Calculates height threshold based on a bar's height and type"""
+        # adjust height to be that of tracker
+        if bar_type == "F":
+            bar_height /= 3.0
+        elif bar_type in ["A", "D"]:
+            bar_height /= 2.0
+        
+        # return threshold
+        return bar_height / 1.8
 
     @staticmethod
     def _lookForBars(image: MatLike) -> Union[list, list[tuple[int, int, int, int]]]:
@@ -119,6 +177,6 @@ class IMBScanner:
             cv2.rectangle(image, (x, y), (x + w, y_bottom), (0, 255, 0), 1)
 
         # save the new image 
-        image_name = image_path.split("\\")[-1]
-        out_path = image_path.replace(image_name, f"\\out\\{image_name}")
+        image_name = image_path.split(os.sep)[-1]
+        out_path = image_path.replace(image_name, f"{os.sep}out{os.sep}{image_name}")
         cv2.imwrite(out_path, image)
