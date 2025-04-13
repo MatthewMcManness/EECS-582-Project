@@ -7,6 +7,7 @@ Creation Date: 04/09/2025
 Revisions: 
     - 04/09/2025 Initial Version (Magaly Camacho)
     - 04/12/2025 Changed bar classification to be based on adjacent bars (Magaly Camacho) 
+    - 04/13/2025 Scanner can now find the IMb in an image that includes more than just the IMb (Magaly Camacho)
     
 Preconditions: 
     - The provided image path must lead to an existing image which must be a png
@@ -17,11 +18,10 @@ Side Effects:
 Invariants: 
     - The image at the provided path will not be modified
 Faults:
-    - Currently, it can only identify barcodes in images where the barcode is the only thing present
     - Doesn't account for an image not having a barcode or not being able to find one
     - Assumes there's an image at the given image path
-    - Height threshold needs to be adjusted
     - Potentially too slow to be effective
+    - Doesn't account for orientation
 """
 
 import cv2, os
@@ -29,14 +29,26 @@ from cv2.typing import MatLike
 from typing import Union
 
 class IMBScanner:
-    @classmethod
-    def getBarcodeString(cls, image_path:str):
+    PAD = 5 # padding for when cropping image
+    HEIGHT_RATIO = 1.8 # height ratio for height threshfold for classifying bars
+    NUM_BARS = 65 # number of bars in an IMb 
+
+    @staticmethod
+    def getBarcodeString(image_path:str):
         """Get the representative string for a barcode in an image"""
-        image = cls._loadAdjustImage(image_path) # load and adjust image
-        bars = cls._lookForBars(image) # look for bars in the image
-        #print([bar for bar in bars[0:7]]) 
-        cls._drawBars(bars, image_path) # draw outlines of bars on a copy of the image
-        barcode_string = cls._getReprString(bars) # classify bars to get barcode string
+        thresh = IMBScanner._loadAdjustImage(image_path) 
+        candidate_regions = IMBScanner._getCandidateIMbRegions(thresh, image_path)
+
+        bars_info = IMBScanner._analyzeCandidateIMbRegions(thresh, candidate_regions) 
+
+        if bars_info is None:
+            return " "*IMBScanner.NUM_BARS
+        
+        bars, x_offset, y_offset = bars_info
+        
+        IMBScanner._drawBars(bars, image_path, x_offset, y_offset) # draw outlines of bars on a copy of the image, for debugging
+        barcode_string = IMBScanner._getReprString(bars)
+
         return barcode_string
 
     @staticmethod
@@ -48,16 +60,44 @@ class IMBScanner:
         # convert to black and white, invert colors so bars are white on a black background
         _, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU) 
 
-        return thresh 
+        return thresh
 
-    """def _getIMbLocation():
-        pass
+    @staticmethod
+    def _getCandidateIMbRegions(thresh:MatLike, image_path:str) -> MatLike:
+        """Identifies the area in the image where the barcode is and then crops the image"""
+        # connect barcode bars
+        kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (18, 6))
+        connected = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
+        IMBScanner.saveImage(image_path, connected, "connected")
 
-    def _cropImage():
-        pass"""
+        # find contours of candidate regions based on connected bars
+        regions, _ = cv2.findContours(connected, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
 
-    @classmethod
-    def _getReprString(cls, bars:list) -> list[str]:
+        # return roi after analyzing candidate regions
+        return regions
+
+    @staticmethod
+    def _analyzeCandidateIMbRegions(image, regions):
+        """Check each candidate region to see if it has enough bars to be an IMb"""
+        for region in regions:
+            x, y, w, h = cv2.boundingRect(region)
+            
+            if w >= 3 * h: # *** orientation fix ?
+                y_top = y - IMBScanner.PAD
+                y_bottom = y + h + IMBScanner.PAD
+                x_left = x - IMBScanner.PAD
+                x_right = x + w + IMBScanner.PAD
+
+                image_cropped = image[y_top:y_bottom, x_left:x_right]
+
+                bars = IMBScanner._getBars(image_cropped)
+                if len(bars) == IMBScanner.NUM_BARS: # might need to be more lenient
+                    return bars, x, y
+                
+        return None
+                
+    @staticmethod
+    def _getReprString(bars:list) -> list[str]:
         """Returns a representative string for the barcode"""
         # find shortest bar and get its index
         shortest_bar = min(bars, key=lambda b: b[3]) 
@@ -65,11 +105,11 @@ class IMBScanner:
         classifications = [" " if i != shortest_bar_i else "T" for i in range(len(bars))]
 
         # get representative string
-        cls._classifyBars(bars, classifications, shortest_bar_i)
+        IMBScanner._classifyBars(bars, classifications, shortest_bar_i)
         return ("").join(classifications)
 
-    @classmethod
-    def _classifyBars(cls, bars:list, classifications:list[str], shortest_bar_i:int):
+    @staticmethod
+    def _classifyBars(bars:list, classifications:list[str], shortest_bar_i:int):
         """Classifies bar at index i as either a tracker, ascending, descending, or full bar. Recursively calls itself for the adjacent bars"""
         for direction in [-1, 1]:
             # reset to shortest bar as the previously classified bar
@@ -79,24 +119,27 @@ class IMBScanner:
             type_p = "T"
 
             while 0 <= i < len(bars):
+                # get bar i info 
                 _, y_top_i, _, h_i = bars[i]
                 y_bottom_i = y_top_i + h_i
 
+                # calculate height offsets between bar i and bar p
                 top_offset = abs(y_top_i - y_top_p)
                 bottom_offset = abs(y_bottom_i - y_bottom_p)
 
-                type_i = cls._classifyBar(top_offset, bottom_offset, type_p, h_p)
+                # classify bar i based on bar p
+                type_i = IMBScanner._classifyBar(top_offset, bottom_offset, type_p, h_p)
                 classifications[i] = type_i
                 
-                # make current bar i the previously classified bar for the next i
+                # make current bar i the previously classified bar p for the next bar i
                 y_top_p, y_bottom_p, h_p, type_p = y_top_i, y_bottom_i, h_i, type_i
                 i += direction
     
-    @classmethod
-    def _classifyBar(cls, top_offset, bottom_offset, bar_p_type, bar_p_height):
+    @staticmethod
+    def _classifyBar(top_offset, bottom_offset, bar_p_type, bar_p_height):
         """Classifies a bar (i) based on its height difference with bar p, which has been previously classified"""
         # calculate height threshold based on height and type of bar_p (already classified) 
-        height_thresh = cls._calculateHeightThresh(bar_p_type, bar_p_height)
+        height_thresh = IMBScanner._calculateHeightThresh(bar_p_type, bar_p_height)
 
         # if bars are close within threshold difference in height they are the same type
         if top_offset <= height_thresh and bottom_offset <= height_thresh:
@@ -147,11 +190,11 @@ class IMBScanner:
         elif bar_type in ["A", "D"]:
             bar_height /= 2.0
         
-        # return threshold
-        return bar_height / 1.8
+        # return height threshold
+        return bar_height / IMBScanner.HEIGHT_RATIO
 
     @staticmethod
-    def _lookForBars(image: MatLike) -> Union[list, list[tuple[int, int, int, int]]]:
+    def _getBars(image: MatLike) -> Union[list, list[tuple[int, int, int, int]]]:
         """Looks for bars (contours) in the given image"""
         # find contours (bar shapes), only get outermost shapes and compress the contour points
         contours, _ = cv2.findContours(image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -166,12 +209,14 @@ class IMBScanner:
         return bars
 
     @staticmethod
-    def _drawBars(bars:list, image_path:str):
+    def _drawBars(bars:list, image_path:str, x_offset, y_offset):
         """Draws a rectangle around each bar in the given bars on the given image (for testing purposes)"""
         image = cv2.imread(image_path) # load the image
 
         # draw a rectangle around each bar
-        for (x, y, w, h) in bars:
+        for x, y, w, h in bars:
+            x += x_offset - IMBScanner.PAD
+            y += y_offset - IMBScanner.PAD
             y_bottom = y + h
 
             cv2.rectangle(image, (x, y), (x + w, y_bottom), (0, 255, 0), 1)
@@ -179,4 +224,10 @@ class IMBScanner:
         # save the new image 
         image_name = image_path.split(os.sep)[-1]
         out_path = image_path.replace(image_name, f"{os.sep}out{os.sep}{image_name}")
+        cv2.imwrite(out_path, image)
+
+    @staticmethod
+    def saveImage(image_path, image, tag=""):
+        image_name = image_path.split(os.sep)[-1]
+        out_path = image_path.replace(image_name, f"{os.sep}out{os.sep}{tag}_{image_name}")
         cv2.imwrite(out_path, image)
