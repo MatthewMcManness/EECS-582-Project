@@ -14,6 +14,7 @@ Revisions:
     - 03/16/2025 implemented take picture function (Mariam Oraby)
     - 03/16/2025 implemented turn light off function (Ashley Aldave)
     - 03/30/2025 Removed light curtain and light pins and comments, as they're not used (Magaly Camacho)
+    - 04/21/2025 Added the transfer_to_usb function (Mariam Oraby)
     
 Preconditions: 
     - Components (button, e-ink display) must be connected to and detected by the Raspberry Pi
@@ -34,6 +35,9 @@ from gpiozero import Button, LED
 from src.eink import EInkDisplay 
 from src.lidar import Lidar
 import picamera
+import os
+import shutil
+from pathlib import Path
 
 class Counter:
     """Counter class that keeps track of the number of envelopes that enter the drop box"""
@@ -74,6 +78,7 @@ class Counter:
                 if self._envelopeEntered():
                     self._incAndUpdate() # increase count and update E-Ink Display
                     self._take_picture() # take picture of envelope
+                    self._transfer_to_usb()
 
         # catch keyboard interrupt
         except KeyboardInterrupt as e:
@@ -119,3 +124,40 @@ class Counter:
                     print(f"Picture taken and saved as {file_name}")  # debug statement
         except Exception as e:
             print(f"Error taking picture: {e}")  # catch errors, such as camera issues
+
+    def _transfer_to_usb(self):
+        # Define where images are saved on the Raspberry Pi
+        image_folder = Path('/home/pi/Pictures')
+    
+        # Define where USB is mounted
+        usb_mount_base = Path('/media/pi')
+        usb_devices = [d for d in usb_mount_base.iterdir() if d.is_dir()]
+
+        if not usb_devices:
+            print("No USB stick detected.")
+            return
+
+        usb_path = usb_devices[0]  # Use the first detected USB
+        backup_folder = usb_path / 'images_backup'
+        backup_folder.mkdir(exist_ok=True)
+
+        # Find all image files in the folder (e.g., .jpg, .png)
+        image_files = [f for f in image_folder.glob('*') if f.suffix.lower() in ['.jpg', '.jpeg', '.png']]
+
+        if len(image_files) < 2:
+            print("Not enough images to transfer.")
+            return
+
+        # Sort images by modification time (latest first)
+        image_files.sort(key=lambda f: f.stat().st_mtime, reverse=True)
+
+        # Get the two most recent images
+        latest_images = image_files[:2]
+
+        # Copy them to the USB
+        for image in latest_images:
+            try:
+                shutil.copy(image, backup_folder)
+                print(f"Copied: {image.name}")
+            except Exception as e:
+                print(f"Error copying {image.name}: {e}")
