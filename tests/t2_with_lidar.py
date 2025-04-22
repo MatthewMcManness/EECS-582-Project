@@ -6,6 +6,7 @@ Programmer(s): Magaly Camacho
 Creation Date: 03/04/2025
 Revisions: 
     - 03/04/2025 Initial Version (Magaly Camacho)
+    - 04/22/2025 Fix import (Magaly Camacho)
 
 Preconditions: 
     - Components (button, light curtain, e-ink display, lidar) must be connected to and detected by the Raspberry Pi
@@ -22,7 +23,7 @@ Faults:
 """
 
 import time
-from src import Counter
+from src.counter import Counter
 
 counter = Counter(debug=True) # initialize counter
 
