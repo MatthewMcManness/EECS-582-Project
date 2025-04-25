@@ -6,7 +6,7 @@ from libcamera import Transform
 def _take_picture():
     """Takes a picture with the Raspberry Pi camera and saves it to a file"""
     timestamp = time.strftime("%Y%m%d-%H%M%S")  # create a timestamp for the file name
-    file_name = f"/home/pi/envelope_images/envelope_{timestamp}.jpg"  # specify file path
+    file_name = f"envelope_{timestamp}.jpg"  # specify file path
     
     try:
         # Initialize the camera
