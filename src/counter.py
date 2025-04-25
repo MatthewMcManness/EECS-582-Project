@@ -115,8 +115,8 @@ class Counter:
         """Takes simultaneous pictures with the Raspberry Pi camera 0 and camera 1 and saves it to a file"""
         # prepare timestamped filenames
         timestamp = time.strftime("%Y%m%d-%H%M%S")
-        file0 = f"envelope_cam0_{timestamp}.jpg"
-        file1 = f"envelope_cam1_{timestamp}.jpg"
+        file0 = f"{timestamp}_envelope_bottom.jpg"
+        file1 = f"{timestamp}_envelope_top.jpg"
         
         try:
             # initialize both cameras by number
