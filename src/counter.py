@@ -3,7 +3,7 @@ Program Name: Counter Class
 Description: Counter class that keeps track of how many ballots have entered the drop box.
     Count can be reset by pressing the button inside the box.
 
-Programmer(s): Magaly Camacho, Mariam Oraby, Ashley Aldave
+Programmer(s): Magaly Camacho, Mariam Oraby, Ashley Aldave, Manvir Kaur
 Creation Date: 02/15/2025
 Revisions: 
     - 02/15/2025 Initial Version (Magaly Camacho)
@@ -15,6 +15,7 @@ Revisions:
     - 03/16/2025 implemented turn light off function (Ashley Aldave)
     - 03/30/2025 Removed light curtain and light pins and comments, as they're not used (Magaly Camacho)
     - 04/21/2025 Added the transfer_to_usb function (Mariam Oraby)
+    - 04/25/2025 Added the updated currect working version of taking pictures with both cameras (Manvir Kaur)
     
 Preconditions: 
     - Components (button, e-ink display) must be connected to and detected by the Raspberry Pi
@@ -34,10 +35,11 @@ import time
 from gpiozero import Button, LED
 from src.eink import EInkDisplay 
 from src.lidar import Lidar
-import picamera
 import os
 import shutil
 from pathlib import Path
+from picamera2 import Picamera2, Preview
+from libcamera import Transform
 
 class Counter:
     """Counter class that keeps track of the number of envelopes that enter the drop box"""
@@ -110,20 +112,53 @@ class Counter:
         if self.debug: print(f"Count (reset): {self.count}") # print debug statement if applicable
 
     def _take_picture(self):
-        """Takes a picture with the Raspberry Pi camera and saves it to a file"""
-        timestamp = time.strftime("%Y%m%d-%H%M%S")  # create a timestamp for the file name
-        file_name = f"/home/pi/envelope_images/envelope_{timestamp}.jpg"  # specify file path
-    
+        """Takes simultaneous pictures with the Raspberry Pi camera 0 and camera 1 and saves it to a file"""
+        # prepare timestamped filenames
+        timestamp = time.strftime("%Y%m%d-%H%M%S")
+        file0 = f"envelope_cam0_{timestamp}.jpg"
+        file1 = f"envelope_cam1_{timestamp}.jpg"
+        
         try:
-            # Initialize the camera
-            with picamera.PICamera() as camera:
-                camera.resolution = (1024, 768)  # set the resolution (you can adjust this)
-                time.sleep(0.25)  # give the camera a couple of seconds to adjust to the lighting
-                camera.capture(file_name)  # capture the image and save it to file
-                if self.debug:
-                    print(f"Picture taken and saved as {file_name}")  # debug statement
+            # initialize both cameras by number
+            cam0 = Picamera2(camera_num=0)
+            cam1 = Picamera2(camera_num=1)
+
+            # configure each for high-res stills
+            config0 = cam0.create_still_configuration(main={"size": (4608, 2592)}, transform=Transform(), controls={"AfMode": 2})
+            config1 = cam1.create_still_configuration(main={"size": (4608, 2592)}, transform=Transform(), controls={"AfMode": 2})
+            cam0.configure(config0)
+            cam1.configure(config1)
+
+            # (Optional) start previews if you want a live feed window
+            #cam0.start_preview(Preview.QTGL)
+            #cam1.start_preview(Preview.QTGL)
+
+            # start both cameras
+            cam0.start()
+            cam1.start()
+
+            # give them time to adjust exposure/focus
+            time.sleep(2)
+
+            # capture both frames
+            cam0.capture_file(file0)
+            # add delay here if needed depending on camera angles and gravity
+            cam1.capture_file(file1)
+            if self.debug:
+                print(f"Captured images: {file0.name}, {file1.name}")
+
         except Exception as e:
-            print(f"Error taking picture: {e}")  # catch errors, such as camera issues
+            print(f"Error taking dual-cam pictures: {e}")
+
+        finally:
+            try:
+                # clean up
+                cam0.stop()
+                cam1.stop()
+                #cam0.stop_preview()
+                #cam1.stop_preview()
+            except:
+                pass
 
     def _transfer_to_usb(self):
         # Define where images are saved on the Raspberry Pi
