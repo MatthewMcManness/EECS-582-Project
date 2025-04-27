@@ -17,6 +17,7 @@ Revisions:
     - 04/21/2025 Added the transfer_to_usb function (Mariam Oraby)
     - 04/25/2025 Added the updated currect working version of taking pictures with both cameras (Manvir Kaur)
     - 04/27/2024 Refactored cameras code (Magaly Camacho)
+    - 04/27/2024 made some changes to the USB transferrring code (Mariam Oraby)
     
 Preconditions: 
     - Components (button, e-ink display) must be connected to and detected by the Raspberry Pi
@@ -86,8 +87,9 @@ class Counter:
                 if self._envelopeEntered():
                     self._incAndUpdate() # increase count and update E-Ink Display
                     self._take_pictures() # take picture of envelope
-                    #self._transfer_to_usb()
-
+                elif self._usbDetected():
+                    self._transfer_to_usb()
+                    
         # catch keyboard interrupt
         except KeyboardInterrupt as e:
             print("\nCtrl + C: exiting...")
@@ -99,6 +101,17 @@ class Counter:
         # release resources
         finally:
             self.cleanup()
+
+    def _usbDetected(self) -> bool:
+        # Define where USB devices are mounted
+        usb_mount_base = Path('/media/pi')
+        
+        # Check for any directories under /media/pi (each USB should mount as a directory)
+        usb_devices = [d for d in usb_mount_base.iterdir() if d.is_dir()]
+        
+        # If there is at least one USB device detected, return True
+        return len(usb_devices) > 0
+        
 
     def _envelopeEntered(self) -> bool:
         """Check lidar measurement distance to see if an envelope has entered the box"""
@@ -125,6 +138,7 @@ class Counter:
         except Exception as e:
             print(f"Error taking dual-cam pictures: {e}")
 
+
     def _transfer_to_usb(self):
         # Define where images are saved on the Raspberry Pi
         image_folder = Path('/home/pi/Pictures')
@@ -132,32 +146,27 @@ class Counter:
         # Define where USB is mounted
         usb_mount_base = Path('/media/pi')
         usb_devices = [d for d in usb_mount_base.iterdir() if d.is_dir()]
-
+    
         if not usb_devices:
             print("No USB stick detected.")
             return
-
+    
         usb_path = usb_devices[0]  # Use the first detected USB
         backup_folder = usb_path / 'images_backup'
         backup_folder.mkdir(exist_ok=True)
-
+    
         # Find all image files in the folder (e.g., .jpg, .png)
         image_files = [f for f in image_folder.glob('*') if f.suffix.lower() in ['.jpg', '.jpeg', '.png']]
-
-        if len(image_files) < 2:
-            print("Not enough images to transfer.")
+    
+        if not image_files:
+            print("No images found to transfer.")
             return
-
-        # Sort images by modification time (latest first)
-        image_files.sort(key=lambda f: f.stat().st_mtime, reverse=True)
-
-        # Get the two most recent images
-        latest_images = image_files[:2]
-
-        # Copy them to the USB
-        for image in latest_images:
+    
+        # Copy all images to the USB
+        for image in image_files:
             try:
                 shutil.copy(image, backup_folder)
                 print(f"Copied: {image.name}")
             except Exception as e:
                 print(f"Error copying {image.name}: {e}")
+    
