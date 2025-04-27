@@ -6,6 +6,7 @@ Programmer(s): Magaly Camacho
 Creation Date: 04/24/2025
 Revisions: 
     - 04/24/2025 Initial Version (Magaly Camacho)
+    - 04/27/2025 Turned debug off (Magaly Camacho)
     
 Preconditions: 
     - Components (button, e-ink display, cameras, lidar) must be connected to and detected by the Raspberry Pi
@@ -25,5 +26,5 @@ Faults:
 from src.counter import Counter
 
 if __name__ == "__main__":
-    counter = Counter(debug=True)
+    counter = Counter()
     counter.run()
