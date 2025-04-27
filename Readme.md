@@ -34,6 +34,8 @@ If you are making your own (to work with a different drop box) you need to ensur
 #### Raspberry Pi  
 The Raspberry Pi 500 is a fast, powerful computer integrated into a high-quality keyboard, delivering the ultimate compact PC experience. Equipped with the same quad-core 64-bit Arm processor and RP1 I/O controller as the Raspberry Pi 5, it also includes a built-in aluminum heatsink for enhanced thermal performance. This ensures smooth operation even under heavy workloads while supporting stunning dual 4K display output.
 
+For further Raspberry Pi setup instructions please refer to [this guide](misc/raspberrypi_setup.md).
+
 ##### Features:
 
 * 2.4GHz quad-core 64-bit Arm Cortex-A76 CPU
@@ -209,12 +211,6 @@ Steps:
 ### Glossary:
 
 GPIO: General-Purpose Input-Output, a set of pins that can send or receive electric signals.
-
----
-
-### Troubleshooting Guide:
-Nothing as of yet, but we will update as we go along
-
 
 ---
 
