@@ -16,6 +16,7 @@ Revisions:
     - 03/30/2025 Removed light curtain and light pins and comments, as they're not used (Magaly Camacho)
     - 04/21/2025 Added the transfer_to_usb function (Mariam Oraby)
     - 04/25/2025 Added the updated currect working version of taking pictures with both cameras (Manvir Kaur)
+    - 04/27/2024 Refactored cameras code (Magaly Camacho)
     
 Preconditions: 
     - Components (button, e-ink display) must be connected to and detected by the Raspberry Pi
@@ -35,6 +36,7 @@ import time
 from gpiozero import Button, LED
 from src.eink import EInkDisplay 
 from src.lidar import Lidar
+from src.cameras import Cameras
 import os
 import shutil
 from pathlib import Path
@@ -64,11 +66,15 @@ class Counter:
         self.lidar = Lidar(debug, self.MIN_DROP_DISTANCE)
         self.eink = EInkDisplay()
 
+        # setup cameras
+        self.cameras = Cameras(debug)
+
     def cleanup(self):
         """Clear E-Ink Display and make it go to sleep, and release other resources"""
         self.eink.clear_sleep()
         self.button.close()
         self.lidar.cleanup()
+        self.cameras.stop()
 
     def run(self):
         """Start counter"""
@@ -79,8 +85,8 @@ class Counter:
             while True:
                 if self._envelopeEntered():
                     self._incAndUpdate() # increase count and update E-Ink Display
-                    self._take_picture() # take picture of envelope
-                    self._transfer_to_usb()
+                    self._take_pictures() # take picture of envelope
+                    #self._transfer_to_usb()
 
         # catch keyboard interrupt
         except KeyboardInterrupt as e:
@@ -111,54 +117,13 @@ class Counter:
         self.eink.update_display(self.count)
         if self.debug: print(f"Count (reset): {self.count}") # print debug statement if applicable
 
-    def _take_picture(self):
+    def _take_pictures(self):
         """Takes simultaneous pictures with the Raspberry Pi camera 0 and camera 1 and saves it to a file"""
-        # prepare timestamped filenames
-        timestamp = time.strftime("%Y%m%d-%H%M%S")
-        file0 = f"{timestamp}_envelope_bottom.jpg"
-        file1 = f"{timestamp}_envelope_top.jpg"
-        
         try:
-            # initialize both cameras by number
-            cam0 = Picamera2(camera_num=0)
-            cam1 = Picamera2(camera_num=1)
-
-            # configure each for high-res stills
-            config0 = cam0.create_still_configuration(main={"size": (4608, 2592)}, transform=Transform(), controls={"AfMode": 2})
-            config1 = cam1.create_still_configuration(main={"size": (4608, 2592)}, transform=Transform(), controls={"AfMode": 2})
-            cam0.configure(config0)
-            cam1.configure(config1)
-
-            # (Optional) start previews if you want a live feed window
-            #cam0.start_preview(Preview.QTGL)
-            #cam1.start_preview(Preview.QTGL)
-
-            # start both cameras
-            cam0.start()
-            cam1.start()
-
-            # give them time to adjust exposure/focus
-            time.sleep(2)
-
-            # capture both frames
-            cam0.capture_file(file0)
-            # add delay here if needed depending on camera angles and gravity
-            cam1.capture_file(file1)
-            if self.debug:
-                print(f"Captured images: {file0.name}, {file1.name}")
+            self.cameras.take_pictures()
 
         except Exception as e:
             print(f"Error taking dual-cam pictures: {e}")
-
-        finally:
-            try:
-                # clean up
-                cam0.stop()
-                cam1.stop()
-                #cam0.stop_preview()
-                #cam1.stop_preview()
-            except:
-                pass
 
     def _transfer_to_usb(self):
         # Define where images are saved on the Raspberry Pi
