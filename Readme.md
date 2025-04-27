@@ -32,7 +32,7 @@ The following is a list of the cuts made to the dimensional lumber (not includin
 If you are making your own (to work with a different drop box) you need to ensure that the frame will fit inside your box but also that all components will fit inside the box as well.
 
 #### Raspberry Pi  
-The Raspberry Pi 500 is a fast, powerful computer integrated into a high-quality keyboard, delivering the ultimate compact PC experience. Equipped with the same quad-core 64-bit Arm processor and RP1 I/O controller as the Raspberry Pi 5, it also includes a built-in aluminum heatsink for enhanced thermal performance. This ensures smooth operation even under heavy workloads while supporting stunning dual 4K display output.
+The Raspberry Pi 5 is a powerful, compact single-board computer designed to deliver significant performance improvements over previous models. Featuring a faster processor, enhanced connectivity options, and support for dual 4K displays, it is ideal for a wide range of projects, from education and DIY electronics to professional-grade embedded systems.
 
 For further Raspberry Pi setup instructions please refer to [this guide](misc/raspberrypi_setup.md).
 
@@ -40,9 +40,9 @@ For further Raspberry Pi setup instructions please refer to [this guide](misc/ra
 
 * 2.4GHz quad-core 64-bit Arm Cortex-A76 CPU
 * 8GB SDRAM
-* Built in aluminum heat sink
-* Sleek form factor
-* Access to common external Pi 5 ports including GPIO, 2 x USB 3.0, 1 x USB 2.0 and Gigabit Ethernet
+* Access to common external Pi 5 ports including GPIO, 2 x USB 3.0, 2 x USB 2.0 and Gigabit Ethernet
+* Dual 4Kp60 micro-HDMI display output
+* PCIe 2.0 support for high-speed peripherals
 
 ---
 
