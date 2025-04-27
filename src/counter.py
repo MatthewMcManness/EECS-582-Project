@@ -141,7 +141,7 @@ class Counter:
 
     def _transfer_to_usb(self):
         # Define where images are saved on the Raspberry Pi
-        image_folder = Path('/home/pi/Pictures')
+        image_folder = Path('/home/pi/EECS-582-Project/images')
     
         # Define where USB is mounted
         usb_mount_base = Path('/media/pi')
