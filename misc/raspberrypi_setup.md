@@ -159,6 +159,12 @@ sudo reboot
 
 ## Running Code
 
+To run the project, in a terminal navigate to the `EECS-582-Project` directory and enter:
+
+```bash
+python3 main.py
+```
+
 To run a file in the top directory (`EECS-582-Project`), enter in a terminal:
 
 ```bash
