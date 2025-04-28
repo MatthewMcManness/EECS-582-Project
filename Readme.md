@@ -69,6 +69,38 @@ The big button module pin definitions are as follows: (1) Output, (2) VCC, and (
 To ensure the *Smart Drop-Box Frame* is able to detect when the button is pressed ensure the button output is connected to GPIO17 (Pin No. 11), VCC is connected to a 3.3V pin, and GND is connected to a GND  pin on the Raspberry Pi. For help locating the pins see the [Raspberry Pi Pinout guide](#Raspberry-Pi-Pinout).
 
 ---
+#### Cameras
+
+The *Smart Drop-Box Frame* uses two Raspberry Pi cameras (Raspberry Pi Camera 3 and Raspberry Pi Camera 3 Wide) to capture images of ballots as they are deposited. This helps provide evidence of deposited ballots and supports secure verification.
+
+##### Camera Models:
+- **Top Camera**: Raspberry Pi Camera 3   
+  - Connected to **Camera Port 1** on the Raspberry Pi 5
+  - Focused on obtaining a direct image of the ballot 
+
+- **Bottom Camera**: Raspberry Pi Camera 3 Wide
+  - Connected to **Camera Port 0** on the Raspberry Pi 5  
+  - Captures a wider field of view to cover more of the ballot entrance area
+
+##### Camera Setup:
+- Cameras connect via the orange ribbon cables directly to the Pi 5’s CSI (Camera Serial Interface) ports.
+- Both cameras are triggered nearly simultaneously using the Picamera2 library.
+- Images are saved automatically to `/home/pi/envelope_images/` with timestamped filenames.
+- Dual camera setup allows flexibility in capturing ballots regardless of angle or movement during deposit.
+
+##### Diagram: Camera Connection Overview
++------------------+ +------------------+ | Top Camera | | Bottom Camera | | (Camera 3 Wide) | | (Camera 3) | | Connected to: | | Connected to: | | Pi Camera Port 1 | | Pi Camera Port 0 | +------------------+ +------------------+ \ / \ / +-----------------------+ | Raspberry Pi 5 | | (Dual CSI Ports) | +-----------------------+
+
+
+##### Notes:
+- The system currently captures a picture from each camera when a ballot is detected by the Lidar or Light Curtain system.
+- Minor timing adjustments (small delays between top and bottom camera capture) may be used to improve image accuracy based on how ballots fall.
+- The top camera (Wide) reduces blind spots near the edges of the ballot chute.
+
+For more information on the Raspberry Pi Camera 3 Series, refer to the [official Raspberry Pi Camera documentation](https://www.raspberrypi.com/documentation/accessories/camera.html).
+---
+
+
 #### E-ink display
 The E-ink is a 2.13 inch e-Paper is an Active Matrix Electrophoretic Display (AMEPD), with interface and a reference system design. The 2.13” active area contains 250×122 pixels, and has 1-bit B/W full display capabilities. An integrated circuit contains gate buffer, source buffer, interface, timing control logic, oscillator, DC-DC. SRAM.LUT, VCOM and border are supplied with each panel.
 
